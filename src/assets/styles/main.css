@@ -1,0 +1,12 @@
+html {
+    height: 100%;
+  }
+  
+  body {
+    background-color: white;
+    color: black;
+    height: 100%;
+    font-family: Oswald, sans-serif;
+    font-size: 18px;
+  }
+  
