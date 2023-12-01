@@ -1,127 +1,81 @@
 <template>
-  <div id="pizza-restaurant" class="container-fluid h-100">
-    <div class="row h-100">
-      <div class="col-9 p-4">
-        <div class="text-center title-holder">
-          <span class="subtitle"> CHOOSE YOUR FLAVOR </span>
-          <h1 class="title">THE BEST PIZZA MENU IN TOWN</h1>
-          <p class="text">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut blandit
-            arcu in pretium molestie. Interdum et malesuada fames ac.
-          </p>
-        </div>
+  <div class="col-3 cart p-4">
+    <h3 class="title">Your Cart</h3>
 
-        <div class="row row-cols-4 mt-4">
-          <div
-            class="col justify-content-center text-center"
-            v-for="(item, index) in menu"
-            :key="index"
-          >
-            <div
-              class="d-flex flex-column item"
-              @click="router.push(`/pizza/${item.id}`)"
-            >
-              <img
-                class="w-100"
-                :src="getImageUrl(item.image)"
-                :alt="item.name"
-              />
-              <div class="p-3">
-                <div>
-                  <h5 class="item-name">{{ item.name }}</h5>
-                  <h6 class="item-price">${{ item.price.toFixed(2) }}</h6>
-                </div>
-                <button
-                  type="button"
-                  class="add-cart"
-                  @click="addPizza(item.id)"
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+    <div class="order-items" v-if="cart.length > 0">
+      <div class="order-item mb-4" v-for="(item, index) in cart" :key="index">
+        <img
+          class="order-item-image"
+          :src="getImageUrl(item.image)"
+          :alt="item.name"
+        />
+        <div class="order-item-content">
+          <h5>{{ item.name }} - ${{ item.price.toFixed(2) }}</h5>
+          <p>
+            <button type="button" class="add" @click="addItem(item.id)">
+              +
+            </button>
+            {{ item.quantity }}
+            <button type="button" class="remove" @click="reduceItem(item.id)">
+              -
+            </button>
+          </p>
+
+          <div class="order-item-details">
+            <span> <strong>Calories:</strong> {{ item.calories }}kcal </span>
+            <span> <strong>Fats:</strong> {{ item.fats }}g </span>
           </div>
         </div>
+        <button class="remove-icon" type="button" @click="removeItem(item.id)">
+          x
+        </button>
       </div>
+    </div>
+    <div class="cart-empty" v-else>
+      <p class="text-center">Your basket is empty</p>
+    </div>
 
-      <Cart
-        v-bind:addItem="addItem"
-        v-bind:reduceItem="reduceItem"
-        :getTotalPrice="getTotalPrice"
-        :removeItem="removeItem"
-      />
+    <div class="total-section">
+      <h6 class="total-title">Total payment:</h6>
+      <span class="amount"> ${{ getTotalPrice() }} </span>
+    </div>
+    <div>
+      <button class="btn check btn-primary" @click="hasItems(cart.length)">
+        Checkout
+      </button>
+
+      <PizzaForm />
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { usePizzaStore } from './../../store/index';
-import router from '../router/index';
-import { computed, toRef } from 'vue';
-import Cart from '../components/Cart.vue';
+import { usePizzaStore } from '../../store/index';
 import { storeToRefs } from 'pinia';
+import PizzaForm from './PizzaForm.vue';
 
-type Pizza = {
-  id: number;
-  image: string;
-  name: string;
-  price: number;
-  calories: number;
-  fats: number;
-};
+const { cart } = storeToRefs(usePizzaStore());
 
-type CartItem = Pizza & {
-  quantity: number;
-};
+interface Cart {
+  addItem: (id: number) => void;
+  reduceItem: (id: number) => void;
+  removeItem: (id: number) => void;
+  getTotalPrice: () => void;
+}
+defineProps<Cart>();
 
 const store = usePizzaStore();
-
-const menu = store.menu;
-let { cart } = storeToRefs(store);
-
-function addPizza(id: number) {
-  let pizza = menu.find((pizza) => pizza.id === id);
-  let index = cart.value.findIndex((pizza) => pizza.id === id);
-
-  if (index !== -1) {
-    addItem(id);
-  } else {
-    cart.value.push({ ...pizza, quantity: 1 } as CartItem);
-  }
-}
-
-function getTotalPrice() {
-  let total = 0;
-  cart.value.forEach((item) => {
-    total += item.price * item.quantity;
-  });
-  return total.toFixed(2);
-}
-
-function reduceItem(id: number) {
-  let item = cart.value.find((item) => item.id === id);
-
-  if (item && item.quantity > 1) {
-    item.quantity--;
-  } else {
-    removeItem(id);
-  }
-}
-
-function addItem(id: number) {
-  let item = cart.value.find((item) => item.id === id);
-  if (item) {
-    item.quantity++;
-  }
-}
 
 const getImageUrl = (imageName: string | undefined) => {
   return require(`@/assets/images/${imageName}`);
 };
 
-function removeItem(id: number) {
-  cart.value = cart.value.filter((item) => item.id !== id);
-}
+const hasItems = (cart: number) => {
+  if (cart === 0) {
+    alert('You have to add items in cart');
+  } else {
+    store.openModal();
+  }
+};
 </script>
 
 <style scoped>

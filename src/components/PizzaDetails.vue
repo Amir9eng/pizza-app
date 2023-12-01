@@ -3,7 +3,7 @@
     <h1>{{ pizzaDetails.name }}</h1>
     <img :src="getImageUrl(pizzaDetails.image)" alt="" />
     <p>Price: ${{ pizzaDetails.price.toFixed(2) }}</p>
-    <p>Quantity: {{ pizzaDetails.quantity }}</p>
+    <div>Quantity: {{ pizzaDetails.quantity }}</div>
     <p>Description: {{ pizzaDetails.description }}</p>
   </div>
   <div v-else>
