@@ -17,20 +17,19 @@
             v-for="(item, index) in menu"
             :key="index"
           >
-            <div
-              class="d-flex flex-column item"
-              @click="router.push(`/pizza/${item.id}`)"
-            >
-              <img
-                class="w-100"
-                :src="getImageUrl(item.image)"
-                :alt="item.name"
-              />
-              <div class="p-3">
+            <div class="d-flex flex-column item">
+              <div @click="router.push(`/pizza/${item.id}`)">
+                <img
+                  class="w-100"
+                  :src="getImageUrl(item.image)"
+                  :alt="item.name"
+                />
                 <div>
                   <h5 class="item-name">{{ item.name }}</h5>
                   <h6 class="item-price">${{ item.price.toFixed(2) }}</h6>
                 </div>
+              </div>
+              <div class="p-3">
                 <button
                   type="button"
                   class="add-cart"
